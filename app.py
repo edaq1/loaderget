@@ -4,7 +4,7 @@ import os
 app = Flask(__name__)
 
 # Configuration (In a real app, load from DB or .env)
-FREE_UNAVAILABLE = True
+FREE_UNAVAILABLE = False
 VALID_KEYS = {"OMNEXIS-PREMIUM-1", "OMNEXIS-TEST-KEY"}
 CURRENT_VERSION = "v1.0.0"
 

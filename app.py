@@ -12,6 +12,23 @@ CURRENT_VERSION = "v1.0.0"
 FREE_DOWNLOAD_URL = os.getenv("FREE_DOWNLOAD_URL", "https://github.com/edaq1/loaderget/releases/download/free/omnexisfree.exe")
 PREMIUM_DOWNLOAD_URL = os.getenv("PREMIUM_DOWNLOAD_URL", "https://github.com/edaq1/loaderget/releases/download/PREMIUM/omnexispremium.exe")
 
+GLOBAL_STATUS = os.getenv("GLOBAL_STATUS", "Undetected / Online")
+
+
+import json
+from datetime import datetime, timedelta
+
+def load_keys():
+    keys_path = os.path.join(os.path.dirname(__file__), 'keys.json')
+    if os.path.exists(keys_path):
+        with open(keys_path, 'r') as f:
+            return json.load(f)
+    return []
+
+def save_keys(keys_data):
+    keys_path = os.path.join(os.path.dirname(__file__), 'keys.json')
+    with open(keys_path, 'w') as f:
+        json.dump(keys_data, f, indent=4)
 
 @app.route('/api/access', methods=['POST'])
 def handle_access():
@@ -37,9 +54,31 @@ def handle_access():
 
         if not key:
             return jsonify({"status": "error", "message": "No key provided."})
+            
+        if not hwid:
+             return jsonify({"status": "error", "message": "No HWID provided."})
 
-        if key in VALID_KEYS:
-            # Here you would also check HWID in a real DB
+        keys_data = load_keys()
+        target_key = next((k for k in keys_data if k["key"] == key), None)
+        
+        if target_key:
+            now = datetime.now()
+            
+            # Első használat beállítása
+            if target_key["first_used"] is None:
+                target_key["first_used"] = now.isoformat()
+                target_key["hwid"] = hwid
+                save_keys(keys_data)
+            
+            # HWID Ellenőrzés
+            if target_key["hwid"] != hwid:
+                return jsonify({"status": "error", "message": "Invalid HWID. This key is bound to another device."})
+                
+            # Lejárat Ellenőrzés (30 nap)
+            first_used = datetime.fromisoformat(target_key["first_used"])
+            if now > first_used + timedelta(days=30):
+                return jsonify({"status": "error", "message": "This key has expired."})
+                
             return jsonify({
                 "status": "success",
                 "url": PREMIUM_DOWNLOAD_URL,
@@ -53,6 +92,10 @@ def handle_access():
 @app.route('/ping', methods=['GET'])
 def ping():
     return jsonify({"status": "online", "message": "Omnexis Backend is running."})
+
+@app.route('/api/status', methods=['GET'])
+def get_status():
+    return jsonify({"global_status": GLOBAL_STATUS})
 
 
 if __name__ == '__main__':

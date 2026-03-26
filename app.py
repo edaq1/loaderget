@@ -9,7 +9,7 @@ VALID_KEYS = {"OMNEXIS-PREMIUM-1", "OMNEXIS-TEST-KEY"}
 CURRENT_VERSION = "v1.0.0"
 
 # Separate URLs for free and premium binary/assets
-FREE_DOWNLOAD_URL = os.getenv("FREE_DOWNLOAD_URL", "https://github.com/edaq1/loaderget/releases/download/free/omnexisfree.exe")
+FREE_DOWNLOAD_URL = os.getenv("FREE_DOWNLOAD_URL", "https://github.com/edaq1/loaderget/releases/download/free/OMNEXIS.exe")
 PREMIUM_DOWNLOAD_URL = os.getenv("PREMIUM_DOWNLOAD_URL", "https://github.com/edaq1/loaderget/releases/download/PREMIUM/omnexispremium.exe")
 
 GLOBAL_STATUS = os.getenv("GLOBAL_STATUS", "Undetected / Online")

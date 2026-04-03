@@ -9,7 +9,7 @@ VALID_KEYS = {"OMNEXIS-PREMIUM-1", "OMNEXIS-TEST-KEY"}
 CURRENT_VERSION = "v1.0.0"
 
 # Separate URLs for free and premium binary/assets
-FREE_DOWNLOAD_URL = os.getenv("FREE_DOWNLOAD_URL", "https://github.com/edaq1/loaderget/releases/download/free/OMNEXIS.exe")
+FREE_DOWNLOAD_URL = os.getenv("FREE_DOWNLOAD_URL", "https://github.com/edaq1/loaderget/releases/download/FREECHEAT/OMNEXIS3.exe")
 PREMIUM_DOWNLOAD_URL = os.getenv("PREMIUM_DOWNLOAD_URL", "https://github.com/edaq1/loaderget/releases/download/PREMIUM/omnexispremium.exe")
 
 GLOBAL_STATUS = os.getenv("GLOBAL_STATUS", "Undetected / Online")
@@ -76,13 +76,15 @@ def handle_access():
                 
             # Lejárat Ellenőrzés (30 nap)
             first_used = datetime.fromisoformat(target_key["first_used"])
-            if now > first_used + timedelta(days=30):
+            expires_at = first_used + timedelta(days=30)
+            if now > expires_at:
                 return jsonify({"status": "error", "message": "This key has expired."})
                 
             return jsonify({
                 "status": "success",
                 "url": PREMIUM_DOWNLOAD_URL,
-                "version": CURRENT_VERSION
+                "version": CURRENT_VERSION,
+                "expires_at": expires_at.isoformat()
             })
         else:
             return jsonify({"status": "error", "message": "Invalid key."})

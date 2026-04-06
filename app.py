@@ -3,13 +3,13 @@ import os
 
 app = Flask(__name__)
 
-# Configuration (In a real app, load from DB or .env)
+# Configuration
 FREE_UNAVAILABLE = False
 VALID_KEYS = {"OMNEXIS-PREMIUM-1", "OMNEXIS-TEST-KEY"}
 CURRENT_VERSION = "v1.0.0"
 
 # Separate URLs for free and premium binary/assets
-FREE_DOWNLOAD_URL = os.getenv("FREE_DOWNLOAD_URL", "https://github.com/edaq1/loaderget/releases/download/FREECHEAT/OMNEXIS3.exe")
+FREE_DOWNLOAD_URL = os.getenv("FREE_DOWNLOAD_URL", "https://github.com/edaq1/loaderget/releases/download/FREECHEAT/OMNEXIS.exe")
 PREMIUM_DOWNLOAD_URL = os.getenv("PREMIUM_DOWNLOAD_URL", "https://github.com/edaq1/loaderget/releases/download/PREMIUM/omnexispremium.exe")
 
 GLOBAL_STATUS = os.getenv("GLOBAL_STATUS", "Undetected / Online")
@@ -64,17 +64,17 @@ def handle_access():
         if target_key:
             now = datetime.now()
             
-            # Első használat beállítása
+            # First use Settings
             if target_key["first_used"] is None:
                 target_key["first_used"] = now.isoformat()
                 target_key["hwid"] = hwid
                 save_keys(keys_data)
             
-            # HWID Ellenőrzés
+            # HWID Check
             if target_key["hwid"] != hwid:
                 return jsonify({"status": "error", "message": "Invalid HWID. This key is bound to another device."})
                 
-            # Lejárat Ellenőrzés (30 nap)
+            # Expire Check (30 days)
             first_used = datetime.fromisoformat(target_key["first_used"])
             expires_at = first_used + timedelta(days=30)
             if now > expires_at:
